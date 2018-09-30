@@ -3,6 +3,7 @@ PA1 for Machine Learning Course
 
 
 **Requirement**
+
 Just run code under develop environment, no more test for other envs. 
   - Ubuntu 16.04
   - Anaconda3 + Python3.5
