@@ -32,6 +32,33 @@ Just run code under develop environment, no more test for other envs.
   - for **script.part1_c**, if use only 10% data for train, the RobustRegression will crash in cvxopt step. 
   
   
-**Result**
-- part1_a
-    ![part1a](http://github.com/ZHKKKe/PA1/raw/master/output/part1/part1_b.jpg)
+**Results**
+  - part1_b
+<center>
+<img src="output/part1/part1_b.jpg" width="30%" height="30%" />
+</center>
+
+  - part1_c  
+<center>
+<img src="output/part1/part1_c_sub=0.5_run=10.jpg" width="30%" height="30%" />
+</center>
+
+  - part1_d
+<center>
+<img src="output/part1/part1_d_outliders: [(11, -98515.89)].jpg" width="30%" height="30%" />
+</center>
+
+  - part1_e
+<center>
+<img src="output/part1/part1_e-order=10.jpg" width="30%" height="30%" />
+</center>
+
+  - part2_a
+<center>
+<img src="output/part2/part2_a.jpg" width="30%" height="30%" />
+</center>
+
+  - part2_b
+<center>
+<img src="output/part2/part2_b_trans=2nd_order.jpg" width="30%" height="30%" />
+</center>
