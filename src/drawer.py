@@ -87,9 +87,9 @@ def part2_drawer(name, train_data, test_data,  mean, algorithms, errorbar=True, 
             yerr = np.array([prediction[1][val][val] for val in range(0, prediction[1].shape[0])])
             if errorbar:
                 plt.errorbar(sample_id, prediction[0] + mean, yerr=yerr, fmt='-.', c=COLOR_MAP[idx], lw=1)
-            plt.plot(sample_id, prediction[0] + mean, label=algorithm.name + ' mse=' + str(mse_loss), c=COLOR_MAP[idx], lw=1)
+            plt.plot(sample_id, prediction[0] + mean, label=algorithm.name + ' mse=' + str(round(mse_loss, 3)), c=COLOR_MAP[idx], lw=1)
         else:
-            plt.plot(sample_id, prediction + mean, label=algorithm.name + ' mse=' + str(mse_loss), c=COLOR_MAP[idx], lw=1)
+            plt.plot(sample_id, prediction + mean, label=algorithm.name + ' mse=' + str(round(mse_loss, 3)), c=COLOR_MAP[idx], lw=1)
     
     plt.legend(loc='best')
     file_path = 'output/part{0}/'.format(str(part))
