@@ -63,3 +63,8 @@ Just run code under develop environment, no more test for other envs.
 <center>
 <img src="output/part2/part2_b_trans=2nd_order.jpg" width="30%" height="30%" />
 </center>
+
+  - part3_a_1
+<center>
+<img src="output/part3/part3_a_n_folder=3.jpg" width="30%" height="30%" />
+</center>
