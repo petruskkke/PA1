@@ -77,15 +77,15 @@ def create_subset(datax, datay, precent=1):
         return datax, datay 
 
     assert precent < 1 and precent > 0
-    assert datax.shape == datay.shape, \
-        'x: {0} and y: {1} need to have same shape'.format(datax.shape, datay.shape)
+    assert datax.shape[0] == datay.shape[0], \
+        'x: {0} and y: {1} need to have same sample number'.format(datax.shape[0], datay.shape[0])
 
     total_size = len(datax)
     subset_size = math.floor(total_size * precent)
     assert subset_size > 0
 
     idxs = random.sample(range(0, total_size), subset_size)
-    return datax[idxs], datay[idxs]
+    return np.copy(datax)[idxs], np.copy(datay)[idxs]
     
 
 def add_outliers(algorithm, datax, datay, sigma, outliersx):
@@ -100,4 +100,35 @@ def add_outliers(algorithm, datax, datay, sigma, outliersx):
     datay = np.hstack((datay, outliersy))
 
     return datax, datay, outliersy
+
+
+def create_n_fold_dataset(datax, datay, n=1, shuffle=True):
+    if n <= 1:
+        return datax, datay
+
+    assert isinstance(n, int)    
+    assert datax.shape[0] == datay.shape[0], \
+        'x: {0} and y: {1} need to have same sample number'.format(datax.shape[0], datay.shape[0])
+
+    total_size = len(datax)
+
+    fold_size = math.floor(total_size / n)
+    assert fold_size > 0
+
+    if shuffle:
+        shuffle_idx = np.random.permutation(total_size)
+        shufflex, shuffley = np.copy(datax)[shuffle_idx], np.copy(datay)[shuffle_idx] 
+    else:
+        shufflex, shuffley = np.copy(datax), np.copy(datay)
+    n_dataset = []
+
+    for k in range(0, n - 1):
+        start = k * fold_size
+        subx = shufflex[start : start + fold_size]
+        suby = shuffley[start : start + fold_size]
+        n_dataset.append([subx, suby])
     
+    n_dataset.append([shufflex[(n-1) * fold_size: ], 
+                      shuffley[(n-1) * fold_size: ]])
+
+    return n_dataset

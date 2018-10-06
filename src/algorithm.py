@@ -64,6 +64,42 @@ def order_4nd_transformation(data, param_num, precision=np.float32):
     return phi 
 
 
+def n_folder_cross_validation(algorithm, n_dataset, hyperparams):
+    assert len(n_dataset) > 1
+    backup_hyperparam = algorithm.hyperparams
+
+    error_set = [0] * len(hyperparams)
+    for idx, subset in enumerate(n_dataset):
+        # merge other dataset
+        tag = 0
+        sub_trainx, sub_trainy = None, None
+        for jdx in range(0, len(n_dataset)):
+            if jdx == idx:
+                continue
+            tag += 1
+            if tag == 1:
+                sub_trainx = n_dataset[jdx][0]
+                sub_trainy = n_dataset[jdx][1]
+            else:
+                sub_trainx = np.concatenate((sub_trainx, n_dataset[jdx][0]), axis=0)
+                sub_trainy = np.concatenate((sub_trainy, n_dataset[jdx][1]), axis=0)
+
+        # for each hyerparams
+        for hdx, hyperparam in enumerate(hyperparams):
+            algorithm.hyperparams = hyperparam
+            algorithm.regress(sub_trainx, sub_trainy)
+            error_set[hdx] += algorithm.mse_loss(subset[0], subset[1])
+    algorithm.hyerparams = backup_hyperparam
+    error_set = np.array(error_set)
+
+    best_idx = np.argmin(error_set)
+    return hyperparams[best_idx]
+
+
+def maximum_marginal_likelihood(algorithm, dataset, hyperparams):
+    pass
+
+
 ALGO_TYPE = Enum('ALGO_TYPE', ('BASE', 'LS', 'RLS', 'LASSO', 'RR', 'BR'))
 
 
@@ -82,6 +118,14 @@ class Algorithm:
     @param.setter
     def param(self, val):
         self._param = val
+
+    @property
+    def hyperparams(self):
+        return None
+    
+    @hyperparams.setter
+    def hyperparams(self, val):
+        raise ValueError
 
     def regress(self, x, y):
         y = np.transpose(y)
@@ -111,7 +155,7 @@ class LeastSquares(Algorithm):
         tmp = np.dot(phi, np.transpose(phi))    
         tmp = np.linalg.inv(tmp)
         tmp = np.dot(tmp, phi)
-        self._param= np.dot(tmp, y)
+        self._param = np.dot(tmp, y)
         return self._param
     
     def objective_loss(self, x, y):
@@ -124,6 +168,15 @@ class RegularizedLS(Algorithm):
         super().__init__(transformation, param_num, name, algo_type=ALGO_TYPE.RLS)
         self.alpha = alpha
 
+    @property
+    def hyperparams(self):
+        return self.alpha
+
+    @hyperparams.setter
+    def hyperparams(self, val):
+        self.alpha = val
+        self.name = self.name.split('_')[0] + '_' + str(round(self.alpha, 3))
+
     def regress(self, x, y):
         y, phi = super().regress(x, y)
 
@@ -131,7 +184,7 @@ class RegularizedLS(Algorithm):
         tmp += self.alpha * np.eye(tmp.shape[1])
         tmp = np.linalg.inv(tmp)
         tmp = np.dot(tmp, phi)
-        self._param= np.dot(tmp, y)
+        self._param = np.dot(tmp, y)
         return self._param
 
     def objective_loss(self, x, y):
@@ -144,6 +197,15 @@ class L1RegularizedLS(Algorithm):
         name = name + '_' + str(alpha)
         super().__init__(transformation, param_num, name, algo_type=ALGO_TYPE.LASSO)
         self.alpha = alpha
+
+    @property
+    def hyperparams(self):
+        return self.alpha
+
+    @hyperparams.setter
+    def hyperparams(self, val):
+        self.alpha = val
+        self.name = self.name.split('_')[0] + '_' + str(round(self.alpha, 3))
 
     def regress(self, x, y):
         y, phi = super().regress(x, y)
@@ -172,7 +234,7 @@ class L1RegularizedLS(Algorithm):
         positive = theta[:self.param_num]
         negtive = theta[self.param_num:]
 
-        self._param= positive - negtive
+        self._param = positive - negtive
         return self._param
 
     def objective_loss(self, x, y):
@@ -221,6 +283,21 @@ class BayesianRegression(Algorithm):
         super().__init__(transformation, param_num, name, algo_type=ALGO_TYPE.BR)
         self.alpha = alpha
         self.sigma = sigma
+
+    @property
+    def hyperparams(self):
+        return [self.alpha, self.sigma]
+
+    @hyperparams.setter
+    def hyperparams(self, val):
+        assert isinstance(val, list or tuple), \
+                'hyperparam of BR algorithm need to be list: [alpha, sigma]'
+        assert len(val) == 2
+
+        self.alpha = val[0]
+        self.sigma = val[1]
+        self.name = self.name.split('_')[0] + \
+                    '_' + str(round(self.alpha, 3)) + '_' + str(round(self.sigma, 3))
 
     def regress(self, x, y):
         y, phi = super().regress(x, y)

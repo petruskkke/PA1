@@ -31,7 +31,7 @@ def init_plt(name, xlabel, ylabel):
     plt.yticks(fontsize=7)
     plt.grid()
 
-def part1_drawer(name, train_data, test_data, algorithms):
+def part1_drawer(name, train_data, test_data, algorithms, errorbar=True):
     init_plt(name, 'x', 'y')
 
     trainx, trainy = train_data[0], train_data[1]
@@ -54,7 +54,8 @@ def part1_drawer(name, train_data, test_data, algorithms):
 
         if algorithm.algo_type == ALGO_TYPE.BR:
             yerr = np.array([prediction[1][val][val] for val in range(0, prediction[1].shape[0])])
-            plt.errorbar(testx, prediction[0], yerr=yerr, fmt='-.', c=COLOR_MAP[idx], lw=1)
+            if errorbar:
+                plt.errorbar(testx, prediction[0], yerr=yerr, fmt='-.', c=COLOR_MAP[idx], lw=1)
             plt.plot(testx, prediction[0], label=algorithm.name + ' mse=' + str(round(mse_loss, 3)), c=COLOR_MAP[idx], lw=1)
         else:     
             plt.plot(testx, prediction, label=algorithm.name + ' mse=' + str(round(mse_loss, 3)), c=COLOR_MAP[idx], lw=1)
@@ -68,7 +69,7 @@ def part1_drawer(name, train_data, test_data, algorithms):
     plt.close('all')
 
 
-def part2_drawer(name, train_data, test_data,  mean, algorithms):
+def part2_drawer(name, train_data, test_data,  mean, algorithms, errorbar=True, part=2):
     init_plt(name, 'sample_id', 'people_num')
 
     trainx, trainy = train_data[0], train_data[1]
@@ -84,15 +85,20 @@ def part2_drawer(name, train_data, test_data,  mean, algorithms):
 
         if algorithm.algo_type == ALGO_TYPE.BR:
             yerr = np.array([prediction[1][val][val] for val in range(0, prediction[1].shape[0])])
-            plt.errorbar(sample_id, prediction[0] + mean, yerr=yerr, fmt='-.', c=COLOR_MAP[idx], lw=1)
+            if errorbar:
+                plt.errorbar(sample_id, prediction[0] + mean, yerr=yerr, fmt='-.', c=COLOR_MAP[idx], lw=1)
             plt.plot(sample_id, prediction[0] + mean, label=algorithm.name + ' mse=' + str(mse_loss), c=COLOR_MAP[idx], lw=1)
         else:
             plt.plot(sample_id, prediction + mean, label=algorithm.name + ' mse=' + str(mse_loss), c=COLOR_MAP[idx], lw=1)
     
     plt.legend(loc='best')
-    file_path = 'output/part2/'
+    file_path = 'output/part{0}/'.format(str(part))
     if not os.path.exists(file_path):
         os.makedirs(file_path)
     file_path += name + '.jpg'
     plt.savefig(file_path, dpi=300)
     plt.close('all')
+
+
+def part3_drawer(name, train_data, test_data,  mean, algorithms):
+    part2_drawer(name, train_data, test_data,  mean, algorithms, part=3)

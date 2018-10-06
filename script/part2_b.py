@@ -4,7 +4,7 @@ from src.dataloader import *
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    logging.info('PA1 - part2 - a')
+    logging.info('PA1 - part2 - b')
 
     param_num = 18
     transformation = order_2nd_transformation
